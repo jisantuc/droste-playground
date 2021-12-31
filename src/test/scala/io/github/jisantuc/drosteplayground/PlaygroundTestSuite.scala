@@ -1,8 +1,10 @@
 package io.github.jisantuc.drosteplayground
 
+import higherkindness.droste.scheme
 import munit.FunSuite
 
 import Playground._
+import higherkindness.droste.Algebra
 
 class PlaygroundTestSuite extends FunSuite {
   test("solve the sample puzzle with explicit recursion") {
@@ -16,5 +18,31 @@ class PlaygroundTestSuite extends FunSuite {
       evalR(samplePuzzle)((HPosition(0), VPosition(0))),
       (HPosition(15), VPosition(10))
     )
+  }
+
+  test("solve the sample puzzle with rec schemes") {
+    // annotation is necessary here because without it we seem to hit
+    // some kind of recursion limit and the compiler gets mad about the
+    // EndF 😱
+    val samplePuzzle: Fix[InstructionF] = Fix(
+      HAdjustF(
+        5,
+        Fix(
+          VAdjustF(
+            5,
+            Fix(
+              HAdjustF(
+                8,
+                Fix(
+                  VAdjustF(-3, Fix(VAdjustF(8, Fix(HAdjustF(2, Fix(EndF()))))))
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+
+    assertEquals(???, (HPosition(15), VPosition(10)))
   }
 }
