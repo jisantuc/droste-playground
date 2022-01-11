@@ -1,6 +1,8 @@
 package io.github.jisantuc.drosteplayground
 
 import higherkindness.droste.Algebra
+import cats.Functor
+import higherkindness.droste.data.Fix
 
 case class HPosition(value: Int) extends AnyVal
 case class VPosition(value: Int) extends AnyVal
@@ -51,17 +53,32 @@ object Playground {
   // type of expressio now depends on the shape of the expression. that's maybe bad!
   val exampleExpression = HAdjustF(3, VAdjustF(4, EndF()))
 
-  case class Fix[F[_]](unfix: F[Fix[F]])
-
   // much nicer type 😎
   // cost: lots of Fix(...)es
   val exampleExpressionFix: Fix[InstructionF] = Fix(
     HAdjustF(3, Fix(VAdjustF(4, Fix(EndF()))))
   )
 
-  val alg: Algebra[
-    InstructionF,
-    ((HPosition, VPosition) => (HPosition, VPosition))
-  ] = ???
+  implicit val instructionFFunctor: Functor[InstructionF] =
+    new Functor[InstructionF] {
+      def map[A, B](fa: InstructionF[A])(f: A => B): InstructionF[B] =
+        fa match {
+          case HAdjustF(h, n) => HAdjustF(h, f(n))
+          case VAdjustF(v, n) => VAdjustF(v, f(n))
+          case EndF()         => EndF()
+        }
+    }
+
+  type Position = (HPosition, VPosition)
+
+  type Adjust = Position => Position
+
+  val algAdjust: Algebra[InstructionF, Adjust] = Algebra {
+    case HAdjustF(h, n) =>
+      (pos: Position) => n((HPosition(pos._1.value + h), pos._2))
+    case VAdjustF(v, n) =>
+      (pos: Position) => n((pos._1, VPosition(pos._2.value + v)))
+    case EndF() => identity[Position](_)
+  }
 
 }

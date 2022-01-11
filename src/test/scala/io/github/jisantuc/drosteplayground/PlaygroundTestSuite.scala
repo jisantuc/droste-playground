@@ -5,6 +5,7 @@ import munit.FunSuite
 
 import Playground._
 import higherkindness.droste.Algebra
+import higherkindness.droste.data.Fix
 
 class PlaygroundTestSuite extends FunSuite {
   test("solve the sample puzzle with explicit recursion") {
@@ -43,6 +44,11 @@ class PlaygroundTestSuite extends FunSuite {
       )
     )
 
-    assertEquals(???, (HPosition(15), VPosition(10)))
+    val adjust = scheme.cata(algAdjust)
+
+    assertEquals(
+      adjust(samplePuzzle)((HPosition(0), VPosition(0))),
+      (HPosition(15), VPosition(10))
+    )
   }
 }
