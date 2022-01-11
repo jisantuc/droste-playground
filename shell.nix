@@ -4,6 +4,7 @@ with import <nixpkgs> {};
 	pkgs.mkShell {
 	  name = "droste-playground";
 	  buildInputs = [
+            jdk
             sbt
           ];
 }
