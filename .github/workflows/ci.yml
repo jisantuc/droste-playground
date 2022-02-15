@@ -3,6 +3,7 @@
     push:
       branches:
         - main
+        - test/js/modprobe-msr
     pull_request:
       branches:
         - main
@@ -10,6 +11,8 @@
     build:
       runs-on: ubuntu-latest
       steps:
+      - name: Set up dependency for rapl
+        run: sudo modprobe msr
       - uses: actions/checkout@v1
       - uses: olafurpg/setup-scala@v11
       - name: Run tests
