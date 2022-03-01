@@ -80,26 +80,32 @@ object JsonSearch {
     // has to be def, since it recurses
     def coalgebra: CoalgebraM[Option, Json, Fix[Json]] =
       CoalgebraM[Option, Json, Fix[Json]] { fixJson =>
+        println(s"Calling coalgebra with json: ${fixJson}")
         fixJson match {
           case Fix(JString(_)) | Fix(JInt(_)) | Fix(JNull()) =>
             Option.empty[Json[Fix[Json]]]
           case Fix(JObject(m)) if !m.contains(s) =>
+            println(s"Keys: ${m.keySet}; target: $s")
             m.values.foldLeft(Option.empty[Json[Fix[Json]]])({
               case (acc, json) =>
                 acc orElse coalgebra(json)
             })
           case Fix(JObject(m)) =>
+            println(s"Keys contained: ${m.keySet}; target: $s")
             m.get(s).map(Fix.un(_))
         }
       }
 
     val algebra: AlgebraM[Option, Json, Fix[Json]] =
       AlgebraM[Option, Json, Fix[Json]] { json =>
+        println(s"Calling algebra with json $json")
         json match {
           case JObject(m) => m.get(s)
           case jl @ JList(_) =>
+            println(s"JL: $jl")
             Some(Fix(jl))
           case v =>
+            println(s"V: $v")
             Some(Fix(v))
         }
 
