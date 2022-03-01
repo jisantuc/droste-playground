@@ -1,6 +1,8 @@
 ThisBuild / organization := "com.example"
 ThisBuild / scalaVersion := "2.13.6"
 
+enablePlugins(EnergyMonitorPlugin)
+
 lazy val root = (project in file(".")).settings(
   name := "droste-playground",
   libraryDependencies ++= Seq(
